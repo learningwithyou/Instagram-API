@@ -56,6 +56,15 @@ class ImageAutoResizer
     const MAX_WIDTH = 1080;
 
     /**
+     * Minimum allowed image width.
+     *
+     * Used only for quality calculation.
+     *
+     * @var int
+     */
+    const MIN_WIDTH = 200;
+
+    /**
      * Maximum allowed image height.
      *
      * This is derived from 1080 / 0.8 (tallest portrait aspect allowed).
@@ -66,13 +75,18 @@ class ImageAutoResizer
     const MAX_HEIGHT = 1350;
 
     /**
-     * Output JPEG quality.
-     *
-     * This value was chosen because 100 is very wasteful.
+     * Minimum JPEG quality.
      *
      * @var int
      */
-    const JPEG_QUALITY = 95;
+    const MIN_QUALITY = 70;
+
+    /**
+     * Maximum JPEG quality.
+     *
+     * @var int
+     */
+    const MAX_QUALITY = 95;
 
     /**
      * Override for the default temp path used by all class instances.
@@ -379,6 +393,28 @@ class ImageAutoResizer
     }
 
     /**
+     * Calculate JPEG quality based on photo width.
+     *
+     * @param int $width
+     *
+     * @return int
+     */
+    protected function _getQuality(
+        $width)
+    {
+        if ($width >= self::MAX_WIDTH) {
+            $result = self::MIN_QUALITY;
+        } elseif ($width <= self::MIN_WIDTH) {
+            $result = self::MAX_QUALITY;
+        } else {
+            $factor = (self::MAX_QUALITY - self::MIN_QUALITY) / (self::MAX_WIDTH - self::MIN_WIDTH);
+            $result = (int) (self::MAX_QUALITY - round($factor * ($width - self::MIN_WIDTH)));
+        }
+
+        return $result;
+    }
+
+    /**
      * @param resource $source
      * @param int      $src_x
      * @param int      $src_y
@@ -448,7 +484,8 @@ class ImageAutoResizer
             $tempFile = null;
             try {
                 $tempFile = $this->_makeTempFile();
-                if (imagejpeg($output, $tempFile, self::JPEG_QUALITY) === false) {
+                $width = $this->_isRotated ? $dst_h : $dst_w;
+                if (imagejpeg($output, $tempFile, $this->_getQuality($width)) === false) {
                     throw new \RuntimeException('Failed to create JPEG image file.');
                 }
                 $this->_outputFile = $tempFile;
