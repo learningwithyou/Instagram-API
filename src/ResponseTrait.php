@@ -13,15 +13,15 @@ use Psr\Http\Message\ResponseInterface as HttpResponseInterface;
  */
 trait ResponseTrait
 {
-    /** @var string */
+    /** @var string @internal */
     public $status;
-    /** @var string */
+    /** @var string @internal */
     public $message;
-    /** @var \InstagramAPI\Response\Model\_Message[] */
+    /** @var \InstagramAPI\Response\Model\_Message[] @internal */
     public $_messages; // NOTE: Full classpath is needed above for JSONMapper!
-    /** @var mixed */
+    /** @var mixed @internal */
     public $fullResponse;
-    /** @var HttpResponseInterface */
+    /** @var HttpResponseInterface @internal */
     public $httpResponse;
 
     /**
@@ -31,7 +31,7 @@ trait ResponseTrait
      */
     public function isOk()
     {
-        return $this->status === 'ok'; // Can be: 'ok', 'fail'
+        return $this->getStatus() === 'ok'; // Can be: 'ok', 'fail'
     }
 
     /**
@@ -52,7 +52,7 @@ trait ResponseTrait
      */
     public function getStatus()
     {
-        return $this->status;
+        return isset($this->_jsonData->status) ? $this->_jsonData->status : $this->status;
     }
 
     /**
