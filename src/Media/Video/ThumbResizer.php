@@ -6,18 +6,12 @@ use InstagramAPI\Media\Photo\PhotoResizer;
 
 class ThumbResizer extends VideoResizer
 {
-    /**
-     * Constructor.
-     *
-     * @param string $inputFile
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     */
+    /** {@inheritdoc} */
     public function __construct(
-        $inputFile)
+        $inputFile,
+        FFmpegWrapper $ffmpegWrapper = null)
     {
-        parent::__construct($inputFile);
+        parent::__construct($inputFile, $ffmpegWrapper);
         $this->_outputFormat = '-f mjpeg -ss 00:00:01 -vframes 1';
     }
 

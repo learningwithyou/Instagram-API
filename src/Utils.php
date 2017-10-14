@@ -7,6 +7,7 @@ use Clue\React\Socks\Client as SocksProxy;
 use InstagramAPI\Media\MediaDetails;
 use InstagramAPI\Media\Photo\PhotoDetails;
 use InstagramAPI\Media\Photo\PhotoResizer;
+use InstagramAPI\Media\Video\FFmpegWrapper;
 use InstagramAPI\Media\Video\VideoDetails;
 use InstagramAPI\Media\Video\VideoResizer;
 use InstagramAPI\Response\Model\Item;
@@ -51,6 +52,13 @@ class Utils
      * @var string|bool|null
      */
     public static $ffmpegBin = null;
+
+    /**
+     * Wrapper for a ffmpeg binary.
+     *
+     * @var FFmpegWrapper
+     */
+    protected static $_ffmpegWrapper;
 
     /**
      * Name of the detected ffprobe executable, or FALSE if none found.
@@ -251,7 +259,7 @@ class Utils
     }
 
     /**
-     * Check for ffmpeg/avconv dependencies.
+     * Get a wrapper for ffmpeg/avconv binaries.
      *
      * TIP: If your binary isn't findable via the PATH environment locations,
      * you can manually set the correct path to it. Before calling any functions
@@ -260,9 +268,11 @@ class Utils
      *
      * \InstagramAPI\Utils::$ffmpegBin = '/home/exampleuser/ffmpeg/bin/ffmpeg';
      *
-     * @return string|bool Name of the library if present, otherwise FALSE.
+     * @throws \RuntimeException
+     *
+     * @return FFmpegWrapper
      */
-    public static function checkFFMPEG()
+    public static function getFFmpegWrapper()
     {
         // We only resolve this once per session and then cache the result.
         if (self::$ffmpegBin === null) {
@@ -279,7 +289,15 @@ class Utils
             }
         }
 
-        return self::$ffmpegBin;
+        if (self::$ffmpegBin === false) {
+            throw new \RuntimeException('You must have FFmpeg to process videos.');
+        }
+
+        if (self::$_ffmpegWrapper === null || self::$_ffmpegWrapper->getFfmpegBinary() !== self::$ffmpegBin) {
+            self::$_ffmpegWrapper = new FFmpegWrapper(self::$ffmpegBin);
+        }
+
+        return self::$_ffmpegWrapper;
     }
 
     /**

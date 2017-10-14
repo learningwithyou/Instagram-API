@@ -46,18 +46,27 @@ class VideoResizer implements ResizerInterface
     /** @var string Output format definition. */
     protected $_outputFormat;
 
+    /** @var FFmpegWrapper */
+    protected $_ffmpegWrapper;
+
     /**
      * Constructor.
      *
-     * @param string $inputFile
+     * @param string             $inputFile
+     * @param FFmpegWrapper|null $ffmpegWrapper
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
     public function __construct(
-        $inputFile)
+        $inputFile,
+        FFmpegWrapper $ffmpegWrapper = null)
     {
         $this->_inputFile = $inputFile;
+        $this->_ffmpegWrapper = $ffmpegWrapper;
+        if ($this->_ffmpegWrapper === null) {
+            $this->_ffmpegWrapper = Utils::getFFmpegWrapper();
+        }
         $this->_outputDir = sys_get_temp_dir();
         $this->_bgColor = [0, 0, 0];
         $this->_outputFormat = '-c:a copy -f mp4';
@@ -202,12 +211,6 @@ class VideoResizer implements ResizerInterface
         Dimensions $canvas,
         $outputFile)
     {
-        // The user must have FFmpeg.
-        $ffmpeg = Utils::checkFFMPEG();
-        if ($ffmpeg === false) {
-            throw new \RuntimeException('You must have FFmpeg to process videos.');
-        }
-
         // Swap to correct dimensions if the video pixels are stored rotated.
         if ($this->_hasSwappedAxes()) {
             $srcRect = $srcRect->withSwappedAxes();
@@ -222,22 +225,36 @@ class VideoResizer implements ResizerInterface
             sprintf('pad=w=%d:h=%d:x=%d:y=%d:color=%s', $canvas->getWidth(), $canvas->getHeight(), $dstRect->getX(), $dstRect->getY(), $bgColor),
         ];
 
+        $inputFormat = '';
+        $outputFormat = $this->_outputFormat;
+        if ($this->_details->getRotation()) {
+            if ($this->_ffmpegWrapper->hasNoAutorotate()) {
+                $inputFormat = '-noautorotate';
+            }
+            $outputFormat .= ' -metadata:s:v rotate=""';
+            switch ($this->_details->getRotation()) {
+                case 90:
+                    $filters[] = 'transpose=clock';
+                    break;
+                case 180:
+                    $filters[] = 'hflip';
+                    $filters[] = 'vflip';
+                    break;
+                case 270:
+                    $filters[] = 'transpose=cclock';
+                    break;
+            }
+        }
+
         // TODO: Force to h264 + aac audio, but if audio input is already aac then use "copy" for lossless audio processing.
         // Video format can't copy since we always need to re-encode due to video filtering.
-        $command = sprintf(
-            '%s -v error -i %s -y -vf %s %s %s 2>&1',
-            escapeshellarg($ffmpeg),
+        $this->_ffmpegWrapper->run(sprintf(
+            '%s -i %s -y -vf %s %s %s',
+            $inputFormat,
             escapeshellarg($this->_inputFile),
             escapeshellarg(implode(',', $filters)),
-            $this->_outputFormat,
+            $outputFormat,
             escapeshellarg($outputFile)
-        );
-
-        exec($command, $output, $returnCode);
-        if ($returnCode) {
-            $errorMsg = sprintf('FFmpeg Errors: ["%s"], Command: "%s".', implode('"], ["', $output), $command);
-
-            throw new \RuntimeException($errorMsg, $returnCode);
-        }
+        ));
     }
 }
