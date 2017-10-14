@@ -53,7 +53,27 @@ interface ResizerInterface
     public function isVerFlipped();
 
     /**
-     * Resizes the media.
+     * Set the output directory.
+     *
+     * @param string $outputDirectory
+     *
+     * @return static
+     */
+    public function setOutputDirectory(
+        $outputDirectory);
+
+    /**
+     * Set the background color.
+     *
+     * @param array $color Array with 3 color components [R, G, B] (0-255/0x00-0xFF) for the background.
+     *
+     * @return static
+     */
+    public function setBackgroundColor(
+        array $color);
+
+    /**
+     * Resize the media.
      *
      * @param Rectangle  $srcRect Rectangle to copy from the input.
      * @param Rectangle  $dstRect Destination place and scale of copied pixels.

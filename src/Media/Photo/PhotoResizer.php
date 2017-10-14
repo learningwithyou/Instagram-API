@@ -70,21 +70,35 @@ class PhotoResizer implements ResizerInterface
      * Constructor.
      *
      * @param string $inputFile
-     * @param string $outputDir
-     * @param array  $bgColor
      *
      * @throws \InvalidArgumentException
      */
     public function __construct(
-        $inputFile,
-        $outputDir,
-        array $bgColor)
+        $inputFile)
     {
         $this->_inputFile = $inputFile;
-        $this->_outputDir = $outputDir;
-        $this->_bgColor = $bgColor;
+        $this->_outputDir = sys_get_temp_dir();
+        $this->_bgColor = [255, 255, 255];
 
         $this->_loadImageDetails();
+    }
+
+    /** {@inheritdoc} */
+    public function setOutputDirectory(
+        $outputDirectory)
+    {
+        $this->_outputDir = $outputDirectory;
+
+        return $this;
+    }
+
+    /** {@inheritdoc} */
+    public function setBackgroundColor(
+        array $color)
+    {
+        $this->_bgColor = $color;
+
+        return $this;
     }
 
     /** {@inheritdoc} */

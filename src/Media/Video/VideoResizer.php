@@ -43,26 +43,44 @@ class VideoResizer implements ResizerInterface
     /** @var array Background color [R, G, B] for the final video. */
     protected $_bgColor;
 
+    /** @var string Output format definition. */
+    protected $_outputFormat;
+
     /**
      * Constructor.
      *
      * @param string $inputFile
-     * @param string $outputDir
-     * @param array  $bgColor
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
     public function __construct(
-        $inputFile,
-        $outputDir,
-        array $bgColor)
+        $inputFile)
     {
         $this->_inputFile = $inputFile;
-        $this->_outputDir = $outputDir;
-        $this->_bgColor = $bgColor;
+        $this->_outputDir = sys_get_temp_dir();
+        $this->_bgColor = [0, 0, 0];
+        $this->_outputFormat = '-c:a copy -f mp4';
 
         $this->_loadVideoDetails();
+    }
+
+    /** {@inheritdoc} */
+    public function setOutputDirectory(
+        $outputDirectory)
+    {
+        $this->_outputDir = $outputDirectory;
+
+        return $this;
+    }
+
+    /** {@inheritdoc} */
+    public function setBackgroundColor(
+        array $color)
+    {
+        $this->_bgColor = $color;
+
+        return $this;
     }
 
     /** {@inheritdoc} */
@@ -210,23 +228,17 @@ class VideoResizer implements ResizerInterface
         // TODO: Force to h264 + aac audio, but if audio input is already aac then use "copy" for lossless audio processing.
         // Video format can't copy since we always need to re-encode due to video filtering.
         $command = sprintf(
-            '%s -y -i %s -vf %s -c:a copy -f mp4 %s 2>&1',
-            $ffmpeg,
+            '%s -v error -i %s -y -vf %s %s %s 2>&1',
+            escapeshellarg($ffmpeg),
             escapeshellarg($this->_inputFile),
             escapeshellarg(implode(',', $filters)),
+            $this->_outputFormat,
             escapeshellarg($outputFile)
         );
 
         exec($command, $output, $returnCode);
         if ($returnCode) {
-            // Extract important error messages and build a summary of them.
-            $errorLines = [];
-            foreach ($output as $line) {
-                if (preg_match('/^(?:\[.+?\]\s+)?(?:fail|error|warn|critical)/i', $line)) {
-                    $errorLines[] = $line;
-                }
-            }
-            $errorMsg = sprintf('FFmpeg Errors: ["%s"], Command: "%s".', implode('"], ["', $errorLines), $command);
+            $errorMsg = sprintf('FFmpeg Errors: ["%s"], Command: "%s".', implode('"], ["', $output), $command);
 
             throw new \RuntimeException($errorMsg, $returnCode);
         }

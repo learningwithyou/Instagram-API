@@ -3,10 +3,9 @@
 namespace InstagramAPI;
 
 use InstagramAPI\Media\Dimensions;
-use InstagramAPI\Media\Photo\PhotoResizer;
 use InstagramAPI\Media\Rectangle;
+use InstagramAPI\Media\ResizerFactory;
 use InstagramAPI\Media\ResizerInterface;
-use InstagramAPI\Media\Video\VideoResizer;
 
 /**
  * Automatic media resizer.
@@ -237,15 +236,17 @@ class MediaAutoResizer
      * - "debug" (bool) - Whether to output debugging info during calculation
      *   steps.
      *
-     * @param string $inputFile Path to an input file.
-     * @param array  $options   An associative array of optional parameters. See constructor description.
+     * @param string                $inputFile Path to an input file.
+     * @param array                 $options   An associative array of optional parameters. See constructor description.
+     * @param ResizerInterface|null $resizer   Custom resizer instance (if needed).
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
     public function __construct(
         $inputFile,
-        array $options = [])
+        array $options = [],
+        ResizerInterface $resizer = null)
     {
         // Assign variables for all options, to avoid bulky code repetition.
         $targetFeed = isset($options['targetFeed']) ? $options['targetFeed'] : Constants::FEED_TIMELINE;
@@ -284,12 +285,12 @@ class MediaAutoResizer
         // Target feed. Turn it into a string for easier processing,
         // since we only care about story ratios vs general ratios.
         switch ($targetFeed) {
-        case Constants::FEED_STORY:
-        case Constants::FEED_DIRECT_STORY:
-            $targetFeed = 'story';
-            break;
-        default:
-            $targetFeed = 'general';
+            case Constants::FEED_STORY:
+            case Constants::FEED_DIRECT_STORY:
+                $targetFeed = 'story';
+                break;
+            default:
+                $targetFeed = 'general';
         }
         $this->_targetFeed = $targetFeed;
 
@@ -348,62 +349,22 @@ class MediaAutoResizer
         // Temporary directory path.
         if ($tmpPath === null) {
             $tmpPath = self::$defaultTmpPath !== null
-                       ? self::$defaultTmpPath
-                       : sys_get_temp_dir();
+                ? self::$defaultTmpPath
+                : sys_get_temp_dir();
         }
         if (!is_dir($tmpPath) || !is_writable($tmpPath)) {
             throw new \InvalidArgumentException(sprintf('Directory %s does not exist or is not writable.', $tmpPath));
         }
         $this->_tmpPath = realpath($tmpPath);
 
-        // Create an appropriate media resizer based on the input media type.
-        $fileType = $this->_determineFileType($this->_inputFile);
-        if ($fileType === 'image') {
-            $this->_resizer = new PhotoResizer($this->_inputFile, $this->_tmpPath, $this->_bgColor);
-        } elseif ($fileType === 'video') {
-            $this->_resizer = new VideoResizer($this->_inputFile, $this->_tmpPath, $this->_bgColor);
-        } else {
-            throw new \InvalidArgumentException('Unsupported input media type.');
+        // Init a resizer.
+        $this->_resizer = $resizer;
+        if ($this->_resizer === null) {
+            $this->_resizer = ResizerFactory::createFromFile($this->_inputFile);
         }
-    }
-
-    /**
-     * Determines the media type of a file.
-     *
-     * @param string $filePath The file to evaluate.
-     *
-     * @return string|null Either "image", "video" or NULL (if another type).
-     */
-    protected function _determineFileType(
-        $filePath)
-    {
-        $fileType = null;
-
-        // Use PHP's binary MIME-type heuristic if available. It ignores file
-        // extension and is therefore more accurate at finding the real type.
-        $mimeType = false;
-        if (function_exists('mime_content_type')) {
-            $mimeType = @mime_content_type($filePath);
-        }
-
-        // Now determine whether the file is an image or a video.
-        if ($mimeType !== false) {
-            if (strncmp($mimeType, 'image/', 6) === 0) {
-                $fileType = 'image';
-            } elseif (strncmp($mimeType, 'video/', 6) === 0) {
-                $fileType = 'video';
-            }
-        } else {
-            // Fallback to guessing based on file-extension if MIME unavailable.
-            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-            if (preg_match('#^(jpe?g|png|gif|bmp)$#iD', $extension)) {
-                $fileType = 'image';
-            } elseif (preg_match('#^(3g2|3gp|asf|asx|avi|dvb|f4v|fli|flv|fvt|h261|h263|h264|jpgm|jpgv|jpm|m1v|m2v|m4u|m4v|mj2|mjp2|mk3d|mks|mkv|mng|mov|movie|mp4|mp4v|mpe|mpeg|mpg|mpg4|mxu|ogv|pyv|qt|smv|uvh|uvm|uvp|uvs|uvu|uvv|uvvh|uvvm|uvvp|uvvs|uvvu|uvvv|viv|vob|webm|wm|wmv|wmx|wvx)$#iD', $extension)) {
-                $fileType = 'video';
-            }
-        }
-
-        return $fileType;
+        $this->_resizer
+            ->setOutputDirectory($this->_tmpPath)
+            ->setBackgroundColor($this->_bgColor);
     }
 
     /**
