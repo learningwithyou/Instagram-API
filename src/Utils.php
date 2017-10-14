@@ -7,7 +7,6 @@ use Clue\React\Socks\Client as SocksProxy;
 use InstagramAPI\Media\MediaDetails;
 use InstagramAPI\Media\Photo\PhotoDetails;
 use InstagramAPI\Media\Photo\PhotoResizer;
-use InstagramAPI\Media\Video\ThumbResizer;
 use InstagramAPI\Media\Video\VideoDetails;
 use InstagramAPI\Media\Video\VideoResizer;
 use InstagramAPI\Response\Model\Item;
@@ -596,43 +595,6 @@ class Utils
 
         // Validate photo resolution and aspect ratio.
         self::throwIfIllegalMediaResolution($targetFeed, $photoDetails);
-    }
-
-    /**
-     * Generate a video icon/thumbnail from a video file.
-     *
-     * Automatically guarantees that the generated image follows Instagram's
-     * allowed image specifications, so that there won't be any upload issues.
-     *
-     * @param int    $targetFeed    One of the FEED_X constants.
-     * @param string $videoFilename Path to the video file.
-     *
-     * @throws \InvalidArgumentException If the video file is missing.
-     * @throws \RuntimeException         If FFmpeg isn't working properly, or
-     *                                   thumbnail MediaAutoResizer failed.
-     * @throws \Exception                If MediaAutoResizer failed.
-     *
-     * @return string The JPEG binary data for the generated thumbnail.
-     */
-    public static function createVideoIcon(
-        $targetFeed,
-        $videoFilename)
-    {
-        // The user must have FFmpeg.
-        $ffmpeg = self::checkFFMPEG();
-        if ($ffmpeg === false) {
-            throw new \RuntimeException('You must have FFmpeg to generate video thumbnails.');
-        }
-
-        // Check if input file exists.
-        if (empty($videoFilename) || !is_file($videoFilename)) {
-            throw new \InvalidArgumentException(sprintf('The video file "%s" does not exist on disk.', $videoFilename));
-        }
-
-        // Automatically crop&resize the thumbnail to Instagram's requirements.
-        $resizer = new MediaAutoResizer($videoFilename, ['targetFeed' => $targetFeed], new ThumbResizer($videoFilename));
-
-        return file_get_contents($resizer->getFile()); // Process&get.
     }
 
     /**
