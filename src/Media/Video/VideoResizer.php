@@ -209,10 +209,10 @@ class VideoResizer implements ResizerInterface
         }
 
         // Swap to correct dimensions if the video pixels are stored rotated.
-        if ($this->_isRotated()) {
-            $srcRect = $srcRect->createSwappedAxes();
-            $dstRect = $dstRect->createSwappedAxes();
-            $canvas = $canvas->createSwappedAxes();
+        if ($this->_hasSwappedAxes()) {
+            $srcRect = $srcRect->withSwappedAxes();
+            $dstRect = $dstRect->withSwappedAxes();
+            $canvas = $canvas->withSwappedAxes();
         }
 
         $bgColor = sprintf('0x%02X%02X%02X', ...$this->_bgColor);
