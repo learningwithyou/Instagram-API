@@ -7,6 +7,7 @@ use Clue\React\Socks\Client as SocksProxy;
 use InstagramAPI\Media\MediaDetails;
 use InstagramAPI\Media\Photo\PhotoDetails;
 use InstagramAPI\Media\Photo\PhotoResizer;
+use InstagramAPI\Media\Video\ThumbResizer;
 use InstagramAPI\Media\Video\VideoDetails;
 use InstagramAPI\Media\Video\VideoResizer;
 use InstagramAPI\Response\Model\Item;
@@ -617,34 +618,10 @@ class Utils
             throw new \InvalidArgumentException(sprintf('The video file "%s" does not exist on disk.', $videoFilename));
         }
 
-        // Generate a temp thumbnail filename and delete if file already exists.
-        $tmpPath = self::$defaultTmpPath !== null
-                   ? self::$defaultTmpPath
-                   : sys_get_temp_dir();
-        $tmpFilename = $tmpPath.'/'.md5($videoFilename).'.jpg';
-        if (is_file($tmpFilename)) {
-            @unlink($tmpFilename);
-        }
+        // Automatically crop&resize the thumbnail to Instagram's requirements.
+        $resizer = new MediaAutoResizer($videoFilename, ['targetFeed' => $targetFeed], new ThumbResizer($videoFilename));
 
-        try {
-            // Capture a video preview snapshot to that file via FFMPEG.
-            $command = escapeshellarg($ffmpeg).' -i '.escapeshellarg($videoFilename).' -f mjpeg -ss 00:00:01 -vframes 1 '.escapeshellarg($tmpFilename).' 2>&1';
-            @exec($command, $output, $statusCode);
-
-            // Check for processing errors.
-            if ($statusCode !== 0) {
-                throw new \RuntimeException('FFmpeg failed to generate a video thumbnail.');
-            }
-
-            // Automatically crop&resize the thumbnail to Instagram's requirements.
-            $resizer = new MediaAutoResizer($tmpFilename, ['targetFeed' => $targetFeed]);
-            $jpegContents = file_get_contents($resizer->getFile()); // Process&get.
-            $resizer->deleteFile();
-
-            return $jpegContents;
-        } finally {
-            @unlink($tmpFilename);
-        }
+        return file_get_contents($resizer->getFile()); // Process&get.
     }
 
     /**

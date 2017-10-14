@@ -215,7 +215,7 @@ class VideoResizer implements ResizerInterface
         // The user must have FFmpeg.
         $ffmpeg = Utils::checkFFMPEG();
         if ($ffmpeg === false) {
-            throw new \RuntimeException('You must have FFmpeg to resize videos.');
+            throw new \RuntimeException('You must have FFmpeg to process videos.');
         }
 
         $bgColor = sprintf('0x%02X%02X%02X', ...$this->_bgColor);
