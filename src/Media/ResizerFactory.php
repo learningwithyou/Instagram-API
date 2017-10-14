@@ -2,6 +2,9 @@
 
 namespace InstagramAPI\Media;
 
+use InstagramAPI\Media\Photo\PhotoResizer;
+use InstagramAPI\Media\Video\VideoResizer;
+
 class ResizerFactory
 {
     /**
