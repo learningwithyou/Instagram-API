@@ -12,6 +12,9 @@ class VideoDetails extends MediaDetails
     /** @var string */
     private $_codec;
 
+    /** @var int */
+    private $_rotation;
+
     /**
      * @return float
      */
@@ -38,6 +41,31 @@ class VideoDetails extends MediaDetails
     }
 
     /**
+     * @return int
+     */
+    public function getRotation()
+    {
+        return $this->_rotation;
+    }
+
+    /**
+     * @param $rotation
+     *
+     * @return int
+     */
+    private function _normalizeRotation(
+        $rotation)
+    {
+        $result = $rotation % 360;
+        if ($result < 0) {
+            $result = 360 - $result;
+        }
+        $result = round($result / 90) * 90;
+
+        return (int) $result;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function __construct(
@@ -49,6 +77,15 @@ class VideoDetails extends MediaDetails
         }
         if (isset($details['duration'])) {
             $this->_duration = $details['duration'];
+        }
+        if (isset($details['rotation'])) {
+            $this->_rotation = $this->_normalizeRotation($details['rotation']);
+            // Swap axes when rotation angle equals to 90 or 270 degrees.
+            if ($this->_rotation % 180 && isset($details['width'], $details['height'])) {
+                $tmp = $details['width'];
+                $details['width'] = $details['height'];
+                $details['height'] = $tmp;
+            }
         }
         parent::__construct($filename, $details);
     }

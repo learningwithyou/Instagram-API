@@ -361,7 +361,7 @@ class Utils
      * @throws \InvalidArgumentException If the video file is missing.
      * @throws \RuntimeException         If FFmpeg isn't working properly.
      *
-     * @return array Video codec name, float duration, int width, height and filesize.
+     * @return array Video codec name, float duration, int width, height, rotation angle and filesize.
      */
     public static function getVideoFileDetails(
         $videoFilename)
@@ -413,6 +413,17 @@ class Utils
                 if (isset($videoDetails['duration'])) {
                     // NOTE: Duration is a float such as "230.138000".
                     $videoDetails['duration'] = (float) $streamInfo['duration'];
+                }
+
+                // Read rotation angle from tags.
+                if (isset($streamInfo['tags']) && is_array($streamInfo['tags'])) {
+                    $tags = array_change_key_case($streamInfo['tags'], CASE_LOWER);
+                    if (isset($tags['rotate'])) {
+                        $videoDetails['rotation'] = (int) $tags['rotate'];
+                    }
+                }
+                if (!isset($videoDetails['rotation'])) {
+                    $videoDetails['rotation'] = 0;
                 }
 
                 break; // Stop checking streams.

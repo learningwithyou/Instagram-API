@@ -109,24 +109,19 @@ class VideoResizer implements ResizerInterface
      */
     protected function _hasSwappedAxes()
     {
-        // TODO: Research and implement how to handle rotated videos.
-        // Videos can have metadata with a rotation flag:
-        // https://addpipe.com/blog/mp4-rotation-metadata-in-mobile-video-files/
-        // But ffmpeg has some autorotation-code enabled by default, so we
-        // should check how it works: https://trac.ffmpeg.org/ticket/515
-        return false;
+        return $this->_details->getRotation() % 180;
     }
 
     /** {@inheritdoc} */
     public function isHorFlipped()
     {
-        return false;
+        return $this->_details->getRotation() === 90;
     }
 
     /** {@inheritdoc} */
     public function isVerFlipped()
     {
-        return false;
+        return $this->_details->getRotation() === 180;
     }
 
     /** {@inheritdoc} */
@@ -145,11 +140,6 @@ class VideoResizer implements ResizerInterface
     public function getInputDimensions()
     {
         $result = new Dimensions($this->_details->getWidth(), $this->_details->getHeight());
-
-        // Swap to correct dimensions if the video pixels are stored rotated.
-        if ($this->_hasSwappedAxes()) {
-            $result = $result->withSwappedAxes();
-        }
 
         return $result;
     }
@@ -216,6 +206,13 @@ class VideoResizer implements ResizerInterface
         $ffmpeg = Utils::checkFFMPEG();
         if ($ffmpeg === false) {
             throw new \RuntimeException('You must have FFmpeg to process videos.');
+        }
+
+        // Swap to correct dimensions if the video pixels are stored rotated.
+        if ($this->_isRotated()) {
+            $srcRect = $srcRect->createSwappedAxes();
+            $dstRect = $dstRect->createSwappedAxes();
+            $canvas = $canvas->createSwappedAxes();
         }
 
         $bgColor = sprintf('0x%02X%02X%02X', ...$this->_bgColor);
