@@ -102,12 +102,6 @@ class PhotoResizer implements ResizerInterface
     }
 
     /** {@inheritdoc} */
-    public function getMediaDetails()
-    {
-        return $this->_details;
-    }
-
-    /** {@inheritdoc} */
     public function isProcessingRequired()
     {
         // Process everything that's not already a JPEG file.

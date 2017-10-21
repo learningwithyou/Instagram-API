@@ -49,7 +49,7 @@ class ConstraintsTest extends TestCase
             ->disableOriginalConstructor()
             ->setMethods([
                 'getInputDimensions', 'isProcessingRequired', 'isHorFlipped', 'isVerFlipped',
-                'resize', 'getMinWidth', 'getMaxWidth', 'getMediaDetails', 'setOutputDirectory', 'setBackgroundColor',
+                'resize', 'getMinWidth', 'getMaxWidth', 'setOutputDirectory', 'setBackgroundColor',
             ])
             ->getMock();
 
@@ -94,7 +94,7 @@ class ConstraintsTest extends TestCase
 
     public function setUp()
     {
-        $this->_values = array_merge(range(100, 150), range(300, 350), range(1050, 1100));
+        $this->_values = array_merge(range(100, 150), range(275, 325), range(1050, 1100));
     }
 
     /**

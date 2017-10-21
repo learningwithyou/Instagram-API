@@ -93,12 +93,6 @@ class VideoResizer implements ResizerInterface
     }
 
     /** {@inheritdoc} */
-    public function getMediaDetails()
-    {
-        return $this->_details;
-    }
-
-    /** {@inheritdoc} */
     public function isProcessingRequired()
     {
         // TODO: Ensure that video is mp4 + h264 + aac.

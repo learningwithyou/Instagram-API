@@ -5,13 +5,6 @@ namespace InstagramAPI\Media;
 interface ResizerInterface
 {
     /**
-     * Get the media details.
-     *
-     * @return MediaDetails
-     */
-    public function getMediaDetails();
-
-    /**
      * Check if media requires processing.
      *
      * This must return TRUE if the media resizer sees any other problems with
