@@ -18,12 +18,6 @@ class ThumbResizer extends VideoResizer
     }
 
     /** {@inheritdoc} */
-    protected function _makeTempFile()
-    {
-        return tempnam($this->_outputDir, 'THUMB');
-    }
-
-    /** {@inheritdoc} */
     public function getMinWidth()
     {
         return PhotoResizer::MIN_WIDTH;

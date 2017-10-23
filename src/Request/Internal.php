@@ -536,8 +536,8 @@ class Internal extends RequestCollection
                 ])
             ->addPost('extra',
                 [
-                    'source_width'  => $videoDetails->getWidth(),
-                    'source_height' => $videoDetails->getHeight(),
+                    'source_width'  => $videoDetails->getHeight(),
+                    'source_height' => $videoDetails->getWidth(),
                 ])
             ->addPost('_csrftoken', $this->ig->client->getToken())
             ->addPost('_uuid', $this->ig->uuid)
@@ -1593,8 +1593,8 @@ class Internal extends RequestCollection
         // Common params.
         $result = [
             'upload_id'                => (string) $internalMetadata->getUploadId(),
-            'upload_media_height'      => (string) $videoDetails->getHeight(),
-            'upload_media_width'       => (string) $videoDetails->getWidth(),
+            'upload_media_height'      => (string) $videoDetails->getWidth(),
+            'upload_media_width'       => (string) $videoDetails->getHeight(),
             'upload_media_duration_ms' => (string) $videoDetails->getDurationInMsec(),
             'media_type'               => (string) Response\Model\Item::VIDEO,
         ];

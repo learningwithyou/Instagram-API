@@ -70,24 +70,6 @@ class VideoResizer implements ResizerInterface
     }
 
     /** {@inheritdoc} */
-    public function setOutputDirectory(
-        $outputDirectory)
-    {
-        $this->_outputDir = $outputDirectory;
-
-        return $this;
-    }
-
-    /** {@inheritdoc} */
-    public function setBackgroundColor(
-        array $color)
-    {
-        $this->_bgColor = $color;
-
-        return $this;
-    }
-
-    /** {@inheritdoc} */
     public function isProcessingRequired()
     {
         // TODO: Ensure that video is mp4 + h264 + aac.

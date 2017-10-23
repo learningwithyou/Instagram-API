@@ -507,7 +507,7 @@ class Utils
             // resolutions. It's controlled by the "ig_android_universe_video_production"
             // experiment variable, which currently enforces width of min:480, max:720.
             // If users want to upload bigger videos, they MUST resize locally first!
-            if ($width < VideoResizer::MIN_WIDTH || $width > VideoResizer::MAX_WIDTH) {
+            if (false && $width < VideoResizer::MIN_WIDTH || $width > VideoResizer::MAX_WIDTH) {
                 throw new \InvalidArgumentException(sprintf(
                     'Instagram only accepts videos that are between %d and %d pixels wide. Your file "%s" is %d pixels wide.',
                     VideoResizer::MIN_WIDTH, VideoResizer::MAX_WIDTH, $mediaFilename, $width
@@ -530,7 +530,7 @@ class Utils
             }
             break;
         default:
-            if ($aspectRatio < MediaAutoResizer::MIN_RATIO || $aspectRatio > MediaAutoResizer::MAX_RATIO) {
+            if (false && $aspectRatio < MediaAutoResizer::MIN_RATIO || $aspectRatio > MediaAutoResizer::MAX_RATIO) {
                 throw new \InvalidArgumentException(sprintf(
                     'Instagram only accepts media with aspect ratios between %.3f and %.3f. Your file "%s" has a %.4f aspect ratio.',
                     MediaAutoResizer::MIN_RATIO, MediaAutoResizer::MAX_RATIO, $mediaFilename, $aspectRatio

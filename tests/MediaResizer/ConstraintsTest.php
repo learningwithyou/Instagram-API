@@ -49,21 +49,13 @@ class ConstraintsTest extends TestCase
             ->disableOriginalConstructor()
             ->setMethods([
                 'getInputDimensions', 'isProcessingRequired', 'isHorFlipped', 'isVerFlipped',
-                'resize', 'getMinWidth', 'getMaxWidth', 'setOutputDirectory', 'setBackgroundColor',
+                'resize', 'getMinWidth', 'getMaxWidth',
             ])
             ->getMock();
 
         $resizerMock->expects($this->any())
             ->method('getInputDimensions')
             ->willReturn($dimensionsMock);
-
-        $resizerMock->expects($this->any())
-            ->method('setOutputDirectory')
-            ->willReturn($resizerMock);
-
-        $resizerMock->expects($this->any())
-            ->method('setBackgroundColor')
-            ->willReturn($resizerMock);
 
         $resizerMock->expects($this->any())
             ->method('isProcessingRequired')
