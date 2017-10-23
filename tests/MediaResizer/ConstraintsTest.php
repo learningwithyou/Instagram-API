@@ -120,8 +120,6 @@ class ConstraintsTest extends TestCase
             },
             function (Rectangle $src, Rectangle $dst, Dimensions $canvas) use (&$result) {
                 $result = $canvas;
-
-                return null;
             }
         );
         $resizer = new MediaAutoResizer(__FILE__, [
