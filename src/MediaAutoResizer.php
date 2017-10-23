@@ -1103,7 +1103,7 @@ class MediaAutoResizer
         } elseif ($canvas->getWidth() < $minWidth) {
             throw new \RuntimeException(sprintf(
                 'Canvas calculation failed. Target width (%s) less than minimum allowed (%s).',
-                $canvas->getWidth(), $minWidth()
+                $canvas->getWidth(), $minWidth
             ));
         } elseif ($canvas->getWidth() > $maxWidth) {
             throw new \RuntimeException(sprintf(
