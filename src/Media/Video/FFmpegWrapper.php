@@ -28,6 +28,7 @@ class FFmpegWrapper
 
         if ($returnCode) {
             $errorMsg = sprintf('FFmpeg Errors: ["%s"], Command: "%s".', implode('"], ["', $output), $command);
+
             throw new \RuntimeException($errorMsg, $returnCode);
         }
     }

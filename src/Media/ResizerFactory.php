@@ -47,14 +47,14 @@ class ResizerFactory
     }
 
     /**
-     * Creates a resizer instance based on a given source file.
+     * Returns a resizer class name based on a given source file.
      *
      * @param string $filePath The source file.
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      *
-     * @return ResizerInterface
+     * @return string
      */
     public static function createFromFile(
         $filePath)
@@ -63,10 +63,10 @@ class ResizerFactory
         $fileType = self::_determineFileType($filePath);
         switch ($fileType) {
             case 'image':
-                $result = new PhotoResizer($filePath);
+                $result = PhotoResizer::class;
                 break;
             case 'video':
-                $result = new VideoResizer($filePath);
+                $result = VideoResizer::class;
                 break;
             default:
                 throw new \InvalidArgumentException('Unsupported input media type.');

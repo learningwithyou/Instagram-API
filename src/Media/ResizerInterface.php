@@ -5,6 +5,19 @@ namespace InstagramAPI\Media;
 interface ResizerInterface
 {
     /**
+     * Constructor.
+     *
+     * @param string $inputFile Path to an input file.
+     * @param string $outputDir Path to an output directory.
+     * @param array  $bgColor   Array with 3 color components [R, G, B] (0-255/0x00-0xFF) for the background.
+     */
+    public function __construct(
+        $inputFile,
+        $outputDir,
+        array $bgColor
+    );
+
+    /**
      * Check if media requires processing.
      *
      * This must return TRUE if the media resizer sees any other problems with
@@ -44,26 +57,6 @@ interface ResizerInterface
      * @return bool
      */
     public function isVerFlipped();
-
-    /**
-     * Set the output directory.
-     *
-     * @param string $outputDirectory
-     *
-     * @return static
-     */
-    public function setOutputDirectory(
-        $outputDirectory);
-
-    /**
-     * Set the background color.
-     *
-     * @param array $color Array with 3 color components [R, G, B] (0-255/0x00-0xFF) for the background.
-     *
-     * @return static
-     */
-    public function setBackgroundColor(
-        array $color);
 
     /**
      * Resize the media.

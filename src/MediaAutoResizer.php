@@ -24,7 +24,6 @@ use InstagramAPI\Media\ResizerInterface;
  *   collection. This function is safe and won't delete the original input file.
  *
  * @author SteveJobzniak (https://github.com/SteveJobzniak)
- * @author Abyr Valg <valga.github@abyrga.ru>
  */
 class MediaAutoResizer
 {
@@ -236,17 +235,17 @@ class MediaAutoResizer
      * - "debug" (bool) - Whether to output debugging info during calculation
      *   steps.
      *
-     * @param string                $inputFile Path to an input file.
-     * @param array                 $options   An associative array of optional parameters. See constructor description.
-     * @param ResizerInterface|null $resizer   Custom resizer instance (if needed).
+     * - "customResizer" (string) - Class name for a custom resizer. It must implement ResizerInterface.
+     *
+     * @param string $inputFile Path to an input file.
+     * @param array  $options   An associative array of optional parameters. See constructor description.
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
     public function __construct(
         $inputFile,
-        array $options = [],
-        ResizerInterface $resizer = null)
+        array $options = [])
     {
         // Assign variables for all options, to avoid bulky code repetition.
         $targetFeed = isset($options['targetFeed']) ? $options['targetFeed'] : Constants::FEED_TIMELINE;
@@ -358,13 +357,37 @@ class MediaAutoResizer
         $this->_tmpPath = realpath($tmpPath);
 
         // Init a resizer.
-        $this->_resizer = $resizer;
-        if ($this->_resizer === null) {
-            $this->_resizer = ResizerFactory::createFromFile($this->_inputFile);
+        $this->_resizer = $this->_initResizer(isset($options['customResizer']) ? $options['customResizer'] : null);
+    }
+
+    /**
+     * Init a resizer.
+     *
+     * @param string|null $resizerClass
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     *
+     * @return ResizerInterface
+     */
+    protected function _initResizer(
+        $resizerClass = null)
+    {
+        if ($resizerClass === null) {
+            $resizerClass = ResizerFactory::createFromFile($this->_inputFile);
+        } else {
+            try {
+                $reflection = new \ReflectionClass($resizerClass);
+            } catch (\ReflectionException $e) {
+                throw new \InvalidArgumentException(sprintf('Failed to fetch reflection data from class "%s".', $resizerClass));
+            }
+
+            if (!$reflection->implementsInterface(ResizerInterface::class)) {
+                throw new \InvalidArgumentException('Custom resizer class must implement ResizerInterface.');
+            }
         }
-        $this->_resizer
-            ->setOutputDirectory($this->_tmpPath)
-            ->setBackgroundColor($this->_bgColor);
+
+        return new $resizerClass($this->_inputFile, $this->_tmpPath, $this->_bgColor);
     }
 
     /**

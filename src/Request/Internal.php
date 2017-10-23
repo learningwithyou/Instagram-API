@@ -114,7 +114,10 @@ class Internal extends RequestCollection
             try {
                 $videoFilename = $internalMetadata->getVideoDetails()->getFilename();
                 // Automatically crop&resize the thumbnail to Instagram's requirements.
-                $resizer = new MediaAutoResizer($videoFilename, ['targetFeed' => $targetFeed], new ThumbResizer($videoFilename));
+                $resizer = new MediaAutoResizer($videoFilename, [
+                    'targetFeed'    => $targetFeed,
+                    'customResizer' => ThumbResizer::class,
+                ]);
 
                 $photoData = file_get_contents($resizer->getFile()); // Process&get.
             } catch (\Exception $e) {

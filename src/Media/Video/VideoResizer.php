@@ -49,26 +49,21 @@ class VideoResizer implements ResizerInterface
     /** @var FFmpegWrapper */
     protected $_ffmpegWrapper;
 
-    /**
-     * Constructor.
-     *
-     * @param string             $inputFile
-     * @param FFmpegWrapper|null $ffmpegWrapper
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     */
+    /** {@inheritdoc} */
     public function __construct(
         $inputFile,
+        $outputDir,
+        array $bgColor,
         FFmpegWrapper $ffmpegWrapper = null)
     {
         $this->_inputFile = $inputFile;
+        $this->_outputDir = $outputDir;
+        $this->_bgColor = $bgColor;
+
         $this->_ffmpegWrapper = $ffmpegWrapper;
         if ($this->_ffmpegWrapper === null) {
             $this->_ffmpegWrapper = Utils::getFFmpegWrapper();
         }
-        $this->_outputDir = sys_get_temp_dir();
-        $this->_bgColor = [0, 0, 0];
         $this->_outputFormat = '-c:a copy -f mp4';
 
         $this->_loadVideoDetails();

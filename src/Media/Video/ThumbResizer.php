@@ -9,9 +9,11 @@ class ThumbResizer extends VideoResizer
     /** {@inheritdoc} */
     public function __construct(
         $inputFile,
+        $outputDir,
+        array $bgColor,
         FFmpegWrapper $ffmpegWrapper = null)
     {
-        parent::__construct($inputFile, $ffmpegWrapper);
+        parent::__construct($inputFile, $outputDir, $bgColor, $ffmpegWrapper);
         $this->_outputFormat = '-f mjpeg -ss 00:00:01 -vframes 1';
     }
 
