@@ -47,7 +47,7 @@ class ResizerFactory
     }
 
     /**
-     * Returns a resizer class name based on a given source file.
+     * Get an appropriate resizer class name based on a given source file.
      *
      * @param string $filePath The source file.
      *

@@ -34,7 +34,7 @@ class FFmpegWrapper
     }
 
     /**
-     * Fetch a features set from the ffmpeg binary.
+     * Fetch the features set from the ffmpeg binary.
      */
     protected function _fetchFeatures()
     {

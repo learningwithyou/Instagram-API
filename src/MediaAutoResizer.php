@@ -235,7 +235,8 @@ class MediaAutoResizer
      * - "debug" (bool) - Whether to output debugging info during calculation
      *   steps.
      *
-     * - "customResizer" (string) - Class name for a custom resizer. It must implement ResizerInterface.
+     * - "customResizer" (string) - Class name for a custom resizer. It must
+     *   implement ResizerInterface.
      *
      * @param string $inputFile Path to an input file.
      * @param array  $options   An associative array of optional parameters. See constructor description.
