@@ -284,12 +284,12 @@ class MediaAutoResizer
         // Target feed. Turn it into a string for easier processing,
         // since we only care about story ratios vs general ratios.
         switch ($targetFeed) {
-            case Constants::FEED_STORY:
-            case Constants::FEED_DIRECT_STORY:
-                $targetFeed = 'story';
-                break;
-            default:
-                $targetFeed = 'general';
+        case Constants::FEED_STORY:
+        case Constants::FEED_DIRECT_STORY:
+            $targetFeed = 'story';
+            break;
+        default:
+            $targetFeed = 'general';
         }
         $this->_targetFeed = $targetFeed;
 
@@ -348,8 +348,8 @@ class MediaAutoResizer
         // Temporary directory path.
         if ($tmpPath === null) {
             $tmpPath = self::$defaultTmpPath !== null
-                ? self::$defaultTmpPath
-                : sys_get_temp_dir();
+                       ? self::$defaultTmpPath
+                       : sys_get_temp_dir();
         }
         if (!is_dir($tmpPath) || !is_writable($tmpPath)) {
             throw new \InvalidArgumentException(sprintf('Directory %s does not exist or is not writable.', $tmpPath));
