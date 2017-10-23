@@ -380,11 +380,15 @@ class MediaAutoResizer
             try {
                 $reflection = new \ReflectionClass($resizerClass);
             } catch (\ReflectionException $e) {
-                throw new \InvalidArgumentException(sprintf('Failed to fetch reflection data from class "%s".', $resizerClass));
+                throw new \InvalidArgumentException(sprintf(
+                    'Unable to reflect class "%s" (Reason: "%s").',
+                    $resizerClass,
+                    $e->getMessage()
+                ));
             }
 
             if (!$reflection->implementsInterface(ResizerInterface::class)) {
-                throw new \InvalidArgumentException('Custom resizer class must implement ResizerInterface.');
+                throw new \InvalidArgumentException('The custom resizer class must implement');
             }
         }
 
