@@ -64,7 +64,7 @@ class FFmpegWrapper
      *
      * @return string
      */
-    public function getFfmpegBinary()
+    public function getFFmpegBinary()
     {
         return $this->_ffmpegBinary;
     }

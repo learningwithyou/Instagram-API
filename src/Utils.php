@@ -293,7 +293,7 @@ class Utils
             throw new \RuntimeException('You must have FFmpeg to process videos.');
         }
 
-        if (self::$_ffmpegWrapper === null || self::$_ffmpegWrapper->getFfmpegBinary() !== self::$ffmpegBin) {
+        if (self::$_ffmpegWrapper === null || self::$_ffmpegWrapper->getFFmpegBinary() !== self::$ffmpegBin) {
             self::$_ffmpegWrapper = new FFmpegWrapper(self::$ffmpegBin);
         }
 
