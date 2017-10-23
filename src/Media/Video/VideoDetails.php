@@ -56,10 +56,15 @@ class VideoDetails extends MediaDetails
     private function _normalizeRotation(
         $rotation)
     {
+        // The angle must be in 0..359 degrees range.
         $result = $rotation % 360;
+        // Negative angle can be normalized by adding it to 360:
+        // 360 + (-90) = 270.
         if ($result < 0) {
-            $result = 360 - $result;
+            $result = 360 + $result;
         }
+        // The final angle must be one of 0, 90, 180 or 270 degrees.
+        // So we are rounding it to the closest one.
         $result = round($result / 90) * 90;
 
         return (int) $result;
